@@ -1,11 +1,11 @@
 package application;
 
-import championship.Messages;
+import championship.ChampOptions;
 
 public class Main {
     public static void main(String[] args){
-        Messages footballChampionship = new Messages();
-        footballChampionship.startingMessage();
-        footballChampionship.selectedOption();
+        ChampOptions champOptions = new ChampOptions();
+        champOptions.startingMessage();
+        champOptions.selectedOption();
     }
 }

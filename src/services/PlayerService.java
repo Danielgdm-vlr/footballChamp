@@ -22,6 +22,10 @@ public class PlayerService {
         playerDao.update(player);
     }
 
+    public Player findPlayer(String playerName){
+        return playerDao.findAfterName(playerName);
+    }
+
     public List<Player> getAllPlayers(){
         return playerDao.findAll();
     }

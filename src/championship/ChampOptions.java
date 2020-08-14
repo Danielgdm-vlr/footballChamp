@@ -7,7 +7,7 @@ import services.TeamService;
 
 import java.util.*;
 
-public class Messages {
+public class ChampOptions{
     //just messages and options(next 4 methods)
     public void startingMessage(){
         System.out.println(" ------------------------------ ");
@@ -171,7 +171,7 @@ public class Messages {
         System.out.print("Please enter the name of the first team (home team): ");
         while(!homeTeamBool) {
             homeTeam = sc.nextLine();
-            if (correctName(homeTeam)) {
+            if (correctTeamName(homeTeam)) {
                 homeTeamBool = true;
             } else {
                 System.out.println("Please enter the name of the team from the list: " + teamList);
@@ -181,7 +181,7 @@ public class Messages {
         System.out.print("Please enter the name of the second team (away team): ");
         while(!awayTeamBool) {
             awayTeam = sc.nextLine();
-            if (correctName(awayTeam)) {
+            if (correctTeamName(awayTeam)) {
                 awayTeamBool = true;
             } else {
                 System.out.println("Please enter the name of the team from the list: " + teamList);;
@@ -241,30 +241,29 @@ public class Messages {
             while(homeTeamGoals > 0) {
                 System.out.println("Enter the name of the player who scored: ");
                 playerName = sc.nextLine();
-                for (int i = 0; i < playerListHomeTeam.size(); i++) {
-                    if (playerName.equals(playerListHomeTeam.get(i).getPlayerName())) {
-                        System.out.println("Enter how many goals " + playerListHomeTeam.get(i).getPlayerName() + " scored: ");
+                if (correctPlayerName(playerName)) {
+                    Player player = playerService.findPlayer(playerName);
+                    System.out.println("Enter how many goals " + player.getPlayerName() + " scored: ");
+                    boolean ok = true;
+                    while (ok) {
                         playerGoals = sc.nextInt();
-                        boolean ok = false;
-                        while (!ok) {
-                            if (playerGoals <= homeTeamGoals) {
-                                playerListHomeTeam.get(i).setGoalsScoredPlayer((playerListHomeTeam.get(i).getGoalsScoredPlayer() + playerGoals));
-                                playerService.updatePlayer(playerListHomeTeam.get(i));
-                                homeTeamGoals -= playerGoals;
-                                playerGoals = 0;
-                                System.out.println("Remaining goals for the home team (" + homeTeam + "): " + homeTeamGoals);
-                                sc.nextLine();
-                                ok = true;
-                            } else {
-                                System.out.println("The number of goals entered is too high!");
-                            }
+                        if (playerGoals <= homeTeamGoals) {
+                            player.setGoalsScoredPlayer((player.getGoalsScoredPlayer() + playerGoals));
+                            playerService.updatePlayer(player);
+                            homeTeamGoals -= playerGoals;
+                            playerGoals = 0;
+                            System.out.println("Remaining goals for the home team (" + homeTeam + "): " + homeTeamGoals);
+                            sc.nextLine();
+                            ok = false;
+                        } else {
+                            System.out.println("The number of goals entered is too high!");
                         }
-                    }else{
+                    }
+                }else{
                         System.out.println("The name of the player is not correct");
                         System.out.println("All the players from team " + homeTeam + ": " + playerListHomeTeam);
                     }
                 }
-            }
         }else{
             System.out.println("Home team " + homeTeam + " did not score any goals!");
             for (Player player : playerListHomeTeam) {
@@ -292,8 +291,17 @@ public class Messages {
         }
 
     }
+    public boolean correctPlayerName(String playerName){
+        PlayerService playerService = new PlayerService();
+        List<Player> playerList = playerService.getAllPlayers();
+        for(Player player:playerList){
+            if(playerName.equals(player.getPlayerName()))
+                return true;
+        }
+        return false;
+    }
 
-    public boolean correctName(String teamName){
+    public boolean correctTeamName(String teamName){
         boolean teamNameBool = false;
         TeamService teamService = new TeamService();
         List<Team> teamList = teamService.getAllTeams();
@@ -400,7 +408,7 @@ public class Messages {
         List<Player> playerList= playerService.getAllPlayers();
         for(Player player : playerList){
             if(playerName.equals(player.getPlayerName()));
-                playerStats(player);
+            playerStats(player);
         }
     }
 

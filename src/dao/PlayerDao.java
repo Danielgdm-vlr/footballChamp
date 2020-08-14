@@ -29,6 +29,18 @@ public class PlayerDao extends GenericDao<Player> {
         }
     }
 
+    public Player findAfterName(String playerName){
+        EntityManager em = getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Player> cq = cb.createQuery(model.Player.class);
+        Root<Player> r = cq.from(model.Player.class);
+        ParameterExpression<String> pName = cb.parameter(String.class);
+        cq.select(r).where(cb.equal(r.get("playerName"), pName));
+        TypedQuery<Player> query = em.createQuery(cq);
+        query.setParameter(pName, playerName);
+        return query.getResultList().get(0);
+    }
+
     public List<Player> findAllSpecific(int idTeam){
             EntityManager em = getEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
