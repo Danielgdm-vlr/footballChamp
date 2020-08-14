@@ -159,19 +159,20 @@ public class ChampOptions{
         System.out.println(" --- ");
     }
 
-    //setting up games between the teams(next methods)
+    //setting up games between the teams(next 8 methods)
     public void messageOption2(){
         Scanner sc = new Scanner(System.in);
         TeamService teamService = new TeamService();
         List<Team> teamList = teamService.getAllTeams();
         System.out.println("All the teams: " + teamList);
-        String homeTeam = null, awayTeam = null;
+
+        String homeTeamName = null, awayTeamName = null;
         boolean homeTeamBool = false, awayTeamBool = false;
 
         System.out.print("Please enter the name of the first team (home team): ");
         while(!homeTeamBool) {
-            homeTeam = sc.nextLine();
-            if (correctTeamName(homeTeam)) {
+            homeTeamName = sc.nextLine();
+            if (correctTeamName(homeTeamName)) {
                 homeTeamBool = true;
             } else {
                 System.out.println("Please enter the name of the team from the list: " + teamList);
@@ -180,8 +181,8 @@ public class ChampOptions{
 
         System.out.print("Please enter the name of the second team (away team): ");
         while(!awayTeamBool) {
-            awayTeam = sc.nextLine();
-            if (correctTeamName(awayTeam)) {
+            awayTeamName = sc.nextLine();
+            if (correctTeamName(awayTeamName)) {
                 awayTeamBool = true;
             } else {
                 System.out.println("Please enter the name of the team from the list: " + teamList);;
@@ -189,94 +190,20 @@ public class ChampOptions{
         }
 
         System.out.println("The match started!");
-
-        Team teamHome = findTeam(homeTeam);
-        teamHome.setMatchesPlayed((teamHome.getMatchesPlayed() + 1));
-        Team teamAway = findTeam(awayTeam);
-        teamAway.setMatchesPlayed((teamAway.getMatchesPlayed() + 1));
-
+        System.out.println(" --- ");
+        System.out.println("The match ended!");
         System.out.println("Please enter the final score!");
-        System.out.println(" --- ");
-        System.out.println("Number of goals scored by the home team (" + homeTeam + ") :");
+        System.out.println("Number of goals scored by the home team (" + homeTeamName + ") :");
         int homeTeamGoals = sc.nextInt();
-        teamHome.setGoalsScoredTeam((teamHome.getGoalsScoredTeam() + homeTeamGoals));
-        System.out.println("Number of goals scored by the away team (" + awayTeam + ") :");
+        System.out.println("Number of goals scored by the away team (" + awayTeamName + ") :");
         int awayTeamGoals = sc.nextInt();
-        teamAway.setGoalsScoredTeam((teamAway.getGoalsScoredTeam() + awayTeamGoals));
+        updateTeam(homeTeamName, awayTeamName, homeTeamGoals, awayTeamGoals);
 
-        teamHome.setGoalsDifference((teamHome.getGoalsScoredTeam() - teamAway.getGoalsScoredTeam()));
-        teamAway.setGoalsDifference((teamAway.getGoalsScoredTeam() - teamHome.getGoalsScoredTeam()));
-
-        if(homeTeamGoals > awayTeamGoals){
-            System.out.println("Home team (" + homeTeam + ") wins!");
-            teamHome.setPoints((teamHome.getPoints() + 3));
-        }
-        else if(homeTeamGoals < awayTeamGoals){
-            System.out.println("Away team (" + awayTeam + ") wins!");
-            teamAway.setPoints((teamAway.getPoints() + 3));
-        } else{
-            System.out.println("The game " + homeTeam + " - " + awayTeam + " ended in a draw!");
-            teamHome.setPoints((teamHome.getPoints() + 1));
-            teamAway.setPoints((teamAway.getPoints() + 1));
-        }
-        teamService.updateTeam(teamHome);
-        teamService.updateTeam(teamAway);
-
-        System.out.println("Please enter the name of the players who scored in this game between " + homeTeam + " and " + awayTeam + " !");
-        String playerName = null;
-
-        PlayerService playerService = new PlayerService();
-        List<Player> playerListHomeTeam = playerService.getAllSpecificPlayers(teamHome.getIdTeam());
-        if(homeTeamGoals > 0) {
-            System.out.println("For the home team (" + homeTeam + ")!");
-            System.out.print("All the players: " + playerListHomeTeam);
-            for (Player player : playerListHomeTeam) {
-                player.setMatchesPlayed((player.getMatchesPlayed() + 1));
-                playerService.updatePlayer(player);
-            }
-            System.out.println("");
-            int playerGoals = 0;
-            System.out.println("Remaining goals for the home team (" + homeTeam + "): " + homeTeamGoals);
-            sc.nextLine();
-            while(homeTeamGoals > 0) {
-                System.out.println("Enter the name of the player who scored: ");
-                playerName = sc.nextLine();
-                if (correctPlayerName(playerName)) {
-                    Player player = playerService.findPlayer(playerName);
-                    System.out.println("Enter how many goals " + player.getPlayerName() + " scored: ");
-                    boolean ok = true;
-                    while (ok) {
-                        playerGoals = sc.nextInt();
-                        if (playerGoals <= homeTeamGoals) {
-                            player.setGoalsScoredPlayer((player.getGoalsScoredPlayer() + playerGoals));
-                            playerService.updatePlayer(player);
-                            homeTeamGoals -= playerGoals;
-                            playerGoals = 0;
-                            System.out.println("Remaining goals for the home team (" + homeTeam + "): " + homeTeamGoals);
-                            sc.nextLine();
-                            ok = false;
-                        } else {
-                            System.out.println("The number of goals entered is too high!");
-                        }
-                    }
-                }else{
-                        System.out.println("The name of the player is not correct");
-                        System.out.println("All the players from team " + homeTeam + ": " + playerListHomeTeam);
-                    }
-                }
-        }else{
-            System.out.println("Home team " + homeTeam + " did not score any goals!");
-            for (Player player : playerListHomeTeam) {
-                player.setMatchesPlayed((player.getMatchesPlayed() + 1));
-                playerService.updatePlayer(player);
-            }
-        }
+        System.out.println("Please enter the name of the players who scored in this game between " + homeTeamName + " and " + awayTeamName + " !");
+        playerGoalsForTeam(homeTeamName, homeTeamGoals);
+        playerGoalsForTeam(awayTeamName, awayTeamGoals);
 
         System.out.println(" --- ");
-
-        System.out.println("For the away team (" + awayTeam + ")!");
-        List<Player> playerListAwayTeam = playerService.getAllSpecificPlayers(teamAway.getIdTeam());
-        System.out.print("All the players: " + playerListAwayTeam);
         messageOptionSetUpAnotherGame();
         int input = sc.nextInt();
         while(input != 0) {
@@ -290,15 +217,6 @@ public class ChampOptions{
             input = sc.nextInt();
         }
 
-    }
-    public boolean correctPlayerName(String playerName){
-        PlayerService playerService = new PlayerService();
-        List<Player> playerList = playerService.getAllPlayers();
-        for(Player player:playerList){
-            if(playerName.equals(player.getPlayerName()))
-                return true;
-        }
-        return false;
     }
 
     public boolean correctTeamName(String teamName){
@@ -315,9 +233,106 @@ public class ChampOptions{
         return false;
     }
 
+    public void updateTeam(String homeTeamName, String awayTeamName, int homeTeamGoals, int awayTeamGoals){
+        TeamService teamService = new TeamService();
+        Team homeTeam = findTeam(homeTeamName);
+        homeTeam.setMatchesPlayed((homeTeam.getMatchesPlayed() + 1));
+        homeTeam.setGoalsScoredTeam((homeTeam.getGoalsScoredTeam() + homeTeamGoals));
+        homeTeam.setGoalsDifference((homeTeam.getGoalsDifference() + (homeTeamGoals - awayTeamGoals)));
+
+        Team awayTeam = findTeam(awayTeamName);
+        awayTeam.setMatchesPlayed((awayTeam.getMatchesPlayed() + 1));
+        awayTeam.setGoalsScoredTeam((awayTeam.getGoalsScoredTeam() + awayTeamGoals));
+        awayTeam.setGoalsDifference((awayTeam.getGoalsDifference() + (awayTeamGoals - homeTeamGoals)));
+
+        if(homeTeamGoals > awayTeamGoals){
+            System.out.println("Home team (" + homeTeamName + ") wins!");
+            homeTeam.setPoints((homeTeam.getPoints() + 3));
+        }
+        else if(homeTeamGoals < awayTeamGoals){
+            System.out.println("Away team (" + awayTeamName + ") wins!");
+            awayTeam.setPoints((awayTeam.getPoints() + 3));
+        } else{
+            System.out.println("The game " + homeTeamName + " - " + awayTeamName + " ended in a draw!");
+            homeTeam.setPoints((homeTeam.getPoints() + 1));
+            awayTeam.setPoints((awayTeam.getPoints() + 1));
+        }
+
+        teamService.updateTeam(homeTeam);
+        teamService.updateTeam(awayTeam);
+    }
+
     public Team findTeam(String teamName){
         TeamService teamService = new TeamService();
         return teamService.findTeam(teamName);
+    }
+
+    public void playerGoalsForTeam(String teamName, int teamGoals){
+        Scanner sc = new Scanner(System.in);
+        TeamService teamService = new TeamService();
+        Team team = teamService.findTeam(teamName);
+        String playerName = null;
+        PlayerService playerService = new PlayerService();
+        List<Player> playerList = getSpecificPlayers(team.getIdTeam());
+        if(teamGoals > 0) {
+            System.out.println("For team (" + team.getTeamName() + ")!");
+            System.out.print("All the players: " + playerList);
+            for (Player player : playerList) {
+                player.setMatchesPlayed((player.getMatchesPlayed() + 1));
+                playerService.updatePlayer(player);
+            }
+            System.out.println("");
+            int playerGoals = 0;
+            System.out.println("Remaining goals for team (" + team.getTeamName() + "): " + teamGoals);
+            while(teamGoals > 0) {
+                System.out.println("Enter the name of the player who scored: ");
+                playerName = sc.nextLine();
+                if (correctPlayerName(playerName)) {
+                    Player player = playerService.findPlayer(playerName);
+                    System.out.println("Enter how many goals " + player.getPlayerName() + " scored: ");
+                    boolean ok = true;
+                    while (ok) {
+                        playerGoals = sc.nextInt();
+                        if (playerGoals <= teamGoals) {
+                            player.setGoalsScoredPlayer((player.getGoalsScoredPlayer() + playerGoals));
+                            playerService.updatePlayer(player);
+                            teamGoals -= playerGoals;
+                            playerGoals = 0;
+                            System.out.println("Remaining goals for the home team (" + team.getTeamName() + "): " + teamGoals);
+                            sc.nextLine();
+                            ok = false;
+                        } else {
+                            System.out.println("The number of goals entered is too high!");
+                            System.out.println("Please enter the correct number of goals! ");
+                        }
+                    }
+                }else{
+                    System.out.println("The name of the player is not correct");
+                    System.out.println("All the players from team " + team.getTeamName() + ": " + playerList);
+                }
+            }
+        }else{
+            System.out.println("Home team " + team.getTeamName() + " did not score any goals!");
+            for (Player player : playerList) {
+                player.setMatchesPlayed((player.getMatchesPlayed() + 1));
+                playerService.updatePlayer(player);
+            }
+        }
+    }
+
+    public List<Player> getSpecificPlayers(int idTeam){
+        PlayerService playerService = new PlayerService();
+        return playerService.getAllSpecificPlayers(idTeam);
+    }
+
+    public boolean correctPlayerName(String playerName){
+        PlayerService playerService = new PlayerService();
+        List<Player> playerList = playerService.getAllPlayers();
+        for(Player player:playerList){
+            if(playerName.equals(player.getPlayerName()))
+                return true;
+        }
+        return false;
     }
 
     public void messageOptionSetUpAnotherGame(){
@@ -407,8 +422,9 @@ public class ChampOptions{
         String playerName = sc.nextLine();
         List<Player> playerList= playerService.getAllPlayers();
         for(Player player : playerList){
-            if(playerName.equals(player.getPlayerName()));
-            playerStats(player);
+            if(playerName.equals(player.getPlayerName())){
+               playerStats(player);
+            }
         }
     }
 
@@ -422,6 +438,7 @@ public class ChampOptions{
     public void playerStats(Player player){
         int idTeam = player.getIdTeam();
         System.out.println(" --- ");
+        System.out.println("Name: " + player.getPlayerName());
         System.out.println("Team: " + getTeamName(idTeam));
         System.out.println("Matches Played: " + player.getMatchesPlayed());
         System.out.println("Goals scored: " + player.getGoalsScoredPlayer());
@@ -445,10 +462,9 @@ public class ChampOptions{
         Collections.sort(playerList);
         System.out.println("Top scorer: " + playerList.get(0).getPlayerName() + ", goals scored: " + playerList.get(0).getGoalsScoredPlayer() +
                 ", matches played: "+ playerList.get(0).getMatchesPlayed());
-        for(int i = 1; i < playerList.size() - 1; i++){
+        for(int i = 1; i < playerList.size(); i++){
             System.out.println((i + 1) + ": " + playerList.get(i).getPlayerName() + ", goals scored: " + playerList.get(i).getGoalsScoredPlayer() +
                     ", matches played: "+ playerList.get(i).getMatchesPlayed());
         }
-        championshipAllOptions();
     }
 }
